@@ -14,20 +14,35 @@
 // limitations under the License.
 //
 
+import Foundation
 import SwiftUI
 
 struct GeneralSettingsView: View {
-    @AppStorage("uupDumpJsonApiUrl") private var uupDumpJsonApiUrl = URL(string: "https://uupdump.net/json-api/")!
+    @AppStorage("uupDumpJsonApiUrl") private var uupDumpJsonApiUrl = "https://uupdump.net/json-api/"
+    @State private var isValidURL: Bool = true
 
     var body: some View {
         Form {
-            TextField("UUP Dump JSON API URL", text: Binding(
-                get: { uupDumpJsonApiUrl.absoluteString },
-                set: { uupDumpJsonApiUrl = URL(string: $0)! }))
-                .autocorrectionDisabled()
+            TextField("UUP Dump JSON API URL", text: $uupDumpJsonApiUrl, onEditingChanged: validateURL)
+                .textContentType(.none)
+                .foregroundColor(isValidURL ? .primary : .red)
+
+            
+            if !isValidURL {
+                Text("Please enter a valid URL.")
+                    .foregroundColor(.red)
+            }
         }
         .padding(20)
         .frame(width: 500, height: 100)
+    }
+                    
+    private func validateURL(_: Bool) {
+        if let url = URL(string: uupDumpJsonApiUrl), url.scheme != nil, url.host != nil {
+            isValidURL = true
+        } else {
+            isValidURL = false
+        }
     }
 }
 
